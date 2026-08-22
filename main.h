@@ -20,6 +20,7 @@ const double pi = 3.1415926535897932385;
 
 inline double random_double()
 {
+    // Return a random real in [0, 1)
     return std::rand() / (RAND_MAX + 1.0);
 }
 
