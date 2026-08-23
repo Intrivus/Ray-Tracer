@@ -3,7 +3,7 @@ CXXFLAGS = -Wall -Werror -std=c++17 -O2
 SANFLAGS = -fsanitize=address -g
 
 SRCS = main.cc
-HDRS = main.h camera.h interval.h vec3.h color.h ray.h hittable.h hittable_list.h sphere.h
+HDRS = main.h camera.h interval.h vec3.h color.h ray.h hittable.h hittable_list.h material.h sphere.h
 OBJS = $(SRCS:.cc=.o)
 
 TARGET = tracer.exe

@@ -1,9 +1,12 @@
 #ifndef HITTABLE_LIST_H
 #define HITTABLE_LIST_H
 
+#include "interval.h"
 #include "hittable.h"
+#include "ray.h"
 
 #include <vector>
+#include <memory>
 
 using std::make_shared;
 using std::shared_ptr;

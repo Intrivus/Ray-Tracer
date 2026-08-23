@@ -1,11 +1,23 @@
 #ifndef HITTABLE_H
 #define HITTABLE_H
 
+#include "interval.h"
+#include "material.h"
+#include "ray.h"
+#include "vec3.h"
+
+#include <memory>
+
+using std::shared_ptr;
+
+class material;
+
 class hit_record
 {
     public:
         point3 p;
         vec3 normal;
+        shared_ptr<material> mat;
         double t;
         bool front_face;
 
