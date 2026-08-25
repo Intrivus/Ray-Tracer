@@ -6,6 +6,8 @@
 #include "ray.h"
 #include "vec3.h"
 
+#include <cmath>
+
 class material
 {
     public:
