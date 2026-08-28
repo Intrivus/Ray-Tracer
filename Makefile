@@ -1,9 +1,12 @@
+SDL_DIR = S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32
+
 CXX = g++
-CXXFLAGS = -Wall -Werror -std=c++17 -O2
+CXXFLAGS = -Wall -Werror -std=c++17 -O2 -Isrc/math -Isrc/scene -Isrc/render -Isrc -I$(SDL_DIR)/include
+LDFLAGS = -L"$(SDL_DIR)/lib" -lSDL3
 SANFLAGS = -fsanitize=address -g
 
-SRCS = main.cc
-HDRS = main.h camera.h interval.h vec3.h color.h ray.h hittable.h hittable_list.h material.h sphere.h
+SRCS = src/main.cc
+HDRS = src/render/main.h src/render/camera.h src/math/interval.h src/math/vec3.h src/math/color.h src/math/ray.h src/scene/hittable.h src/scene/hittable_list.h src/scene/material.h src/scene/sphere.h
 OBJS = $(SRCS:.cc=.o)
 
 TARGET = tracer.exe
@@ -11,7 +14,7 @@ TARGET = tracer.exe
 all: $(TARGET)
 
 $(TARGET): $(OBJS)
-	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS)
+	$(CXX) $(CXXFLAGS) -o $(TARGET) $(OBJS) $(LDFLAGS)
 
 %.o: %.cc $(HDRS)
 	$(CXX) $(CXXFLAGS) -c $< -o $@
@@ -20,6 +23,6 @@ debug: CXXFLAGS += $(SANFLAGS)
 debug: clean $(TARGET)
 
 clean:
-	del /f $(OBJS) $(TARGET)
+	del /f $(subst /,\,$(OBJS) $(TARGET))
 
 .PHONY: all clean debug
