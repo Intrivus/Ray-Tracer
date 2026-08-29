@@ -14,7 +14,7 @@ class camera
     public:
         double aspect_ratio = 1.0; // Ratio of image width over height
         int image_width = 100; // Rendered image width in pixel
-        int samples_per_pixel = 10; // Count of random sampels for each pixel
+        int samples_per_pixel = 10; // Count of random samples for each pixel
         int max_depth = 10; // Maximum number of rays bounces into the scene
 
         double vfov = 90;
@@ -44,6 +44,30 @@ class camera
                         pixel_color += ray_color(r, max_depth, world);
                     }
                     write_color(std::cout, pixel_sample_scale * pixel_color);
+                }
+            }
+
+            std::clog << "\rDone.                 \n";
+        }
+        
+        void render(const hittable& world, uint32_t* const buffer, const int& pitch)
+        {
+            initialize();
+            int stride = pitch / sizeof(uint32_t);
+
+            for (int j = 0; j < image_height; j++)
+            {
+                std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+                for (int i = 0; i < image_width; i++)
+                {
+                    color pixel_color(0,0,0);
+                    for (int sample = 0; sample < samples_per_pixel; sample++)
+                    {
+                        ray r = get_ray(i, j);
+                        pixel_color += ray_color(r, max_depth, world);
+                    }
+                    int index = (j*stride) + i;
+                    write_color(buffer, index, pixel_sample_scale * pixel_color);
                 }
             }
 
