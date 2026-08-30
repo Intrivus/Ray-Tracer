@@ -107,7 +107,6 @@ int main()
     }
 
     bool done = false;
-
     
     void * pixels;
     int pitch = 0;
@@ -126,12 +125,23 @@ int main()
         SDL_Event event;
         while (SDL_PollEvent(&event))
         {
-            if (event.type == SDL_EVENT_QUIT)
-                done = true;
+            if (event.type == SDL_EVENT_QUIT) done = true;
+            if (event.type == SDL_EVENT_KEY_DOWN)
+            {
+                if (event.key.key == SDLK_R) 
+                {
+                    if (!SDL_LockTexture(texture, NULL, &pixels, &pitch)) break;
+                    uint32_t *pixel_buffer = static_cast<uint32_t *>(pixels);
+                    cam.render(world, pixel_buffer, pitch);
+                    SDL_UnlockTexture(texture);
+                }
+            }
         }
         SDL_SetRenderDrawColor(renderer, 0, 60, 60, SDL_ALPHA_OPAQUE);
         SDL_RenderClear(renderer);
+
         SDL_RenderTexture(renderer, texture, NULL, NULL);
+
         SDL_RenderPresent(renderer);
     }
 

@@ -7,6 +7,8 @@
 #include "color.h"
 #include "vec3.h"
 
+#include <thread>
+#include <vector>
 #include <iostream>
 
 class camera
@@ -55,9 +57,29 @@ class camera
             initialize();
             int stride = pitch / sizeof(uint32_t);
 
-            for (int j = 0; j < image_height; j++)
+            unsigned int thread_count = std::thread::hardware_concurrency();
+            thread_count = (thread_count <= 0) ? 4 : thread_count;
+            
+            int row_num = image_height / thread_count;
+
+            std::vector<std::thread> threads;
+
+            for (unsigned int i = 0; i < thread_count; i++)
             {
-                std::clog << "\rScanlines remaining: " << (image_height - j) << ' ' << std::flush;
+                int row_start = i * row_num;
+                int row_end = (i == thread_count - 1) ? image_height : row_start + row_num;
+                std::thread t(&camera::render_row, this, std::ref(world), buffer, stride, row_start, row_end);
+                threads.push_back(std::move(t));
+            }
+            for (std::thread& t : threads) t.join();
+            
+            std::clog << "\rDone.\n";
+        }
+        
+        void render_row(const hittable &world, uint32_t *buffer, int stride, int row_start, int row_end)
+        {
+            for (int j = row_start; j < row_end; j++)
+            {
                 for (int i = 0; i < image_width; i++)
                 {
                     color pixel_color(0,0,0);
@@ -70,12 +92,9 @@ class camera
                     write_color(buffer, index, pixel_sample_scale * pixel_color);
                 }
             }
-
-            std::clog << "\rDone.                 \n";
         }
-        
-    private:
-        int image_height;
+
+        private : int image_height;
         double pixel_sample_scale;
         point3 center;
         point3 pixel00_loc;
