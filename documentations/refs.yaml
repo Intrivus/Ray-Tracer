@@ -1,0 +1,6 @@
+raytracing1weekend:
+  type: book
+  title: "Ray Tracing in One Weekend"
+  author: ["Shirley, Peter", "Black, Trevor David", "Hollasch, Steve"]
+  url: "https://raytracing.github.io/books/RayTracingInOneWeekend.html"
+  date: 2024
