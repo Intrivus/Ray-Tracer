@@ -1,9 +1,8 @@
-#ifndef MAIN_H
-#define MAIN_H
+#ifndef UTILS_H
+#define UTILS_H
 
 #include <cmath>
 #include <cstdlib>
-#include <iostream>
 #include <limits>
 #include <memory>
 
@@ -25,7 +24,6 @@ inline double random_double()
     // Return a random real in [0, 1)
     return std::rand() / (RAND_MAX + 1.0);
 }
-
 
 inline double random_double(double min, double max)
 {

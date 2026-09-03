@@ -1,6 +1,10 @@
 #ifndef VEC3_H
 #define VEC3_H
 
+#include "utils.h"
+
+#include <iostream>
+
 class vec3 
 {
     public:

@@ -4,7 +4,9 @@
 #include "interval.h"
 #include "vec3.h"
 
-#include "SDL3/SDL.h"
+#include <cmath>
+#include <cstdint>
+#include <iostream>
 
 using color = vec3;
 
@@ -14,7 +16,7 @@ inline double linear_to_gamma(double linear_component)
     return 0;
 }
 
-void write_color(std::ostream& out, const color& pixel_color) {
+inline void write_color(std::ostream& out, const color& pixel_color) {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();
@@ -34,7 +36,7 @@ void write_color(std::ostream& out, const color& pixel_color) {
     out << rbyte << ' ' << gbyte << ' ' << bbyte << '\n';
 }
 
-void write_color(uint32_t* buffer, int index, const color& pixel_color) {
+inline void write_color(uint32_t* buffer, int index, const color& pixel_color) {
     auto r = pixel_color.x();
     auto g = pixel_color.y();
     auto b = pixel_color.z();
@@ -51,8 +53,8 @@ void write_color(uint32_t* buffer, int index, const color& pixel_color) {
     int bbyte = int(256 * intensity.clamp(b));
 
     // Write out the pixel color components.
-    const SDL_PixelFormatDetails* format_details = SDL_GetPixelFormatDetails(SDL_PIXELFORMAT_RGBA8888);
-    uint32_t hex_color = SDL_MapRGBA(format_details, NULL, rbyte, gbyte, bbyte, 255);
+    int alpha = 255;
+    uint32_t hex_color = rbyte << 24 |gbyte << 16 | bbyte << 8 | alpha << 0;
     buffer[index] = hex_color;
 }
 

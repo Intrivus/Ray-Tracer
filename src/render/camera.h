@@ -6,6 +6,7 @@
 #include "ray.h"
 #include "color.h"
 #include "vec3.h"
+#include "utils.h"
 
 #include <thread>
 #include <vector>
@@ -94,7 +95,8 @@ class camera
             }
         }
 
-        private : int image_height;
+        private: 
+        int image_height;
         double pixel_sample_scale;
         point3 center;
         point3 pixel00_loc;
