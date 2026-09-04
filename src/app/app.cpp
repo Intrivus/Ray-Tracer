@@ -63,11 +63,11 @@ void App::scene_setup()
     // Camera
     cam.aspect_ratio = aspect_ratio;
     cam.image_width = window_width;
-    cam.samples_per_pixel = 50;
-    cam.max_depth = 10;
+    // cam.samples_per_pixel = 50;
+    // cam.max_depth = 10;
 
     cam.vfov = 20;
-    cam.lookfrom = point3(13, 2, 3);
+    // cam.lookfrom = point3(13, 2, 3);
     cam.lookat = point3(0, 0, 0);
     cam.vup = vec3(0, 1, 0);
 
@@ -79,13 +79,14 @@ void App::init()
 {
     SDL_Init(SDL_INIT_VIDEO);
 
-    window = SDL_CreateWindow("Window", window_width, window_height, 0);
+    window = SDL_CreateWindow("Window", window_width, window_height, SDL_WINDOW_RESIZABLE);
     if (window == nullptr)
     {
         std::cerr << "Window could not be created\n";
         SDL_Quit();
         exit(EXIT_FAILURE);
     }
+    SDL_SetWindowAspectRatio(window, static_cast<float>(aspect_ratio), static_cast<float>(aspect_ratio));
 
     renderer = SDL_CreateRenderer(window, NULL);
     if (renderer == nullptr)
@@ -113,13 +114,13 @@ void App::init()
         exit(EXIT_FAILURE);
     }
 
-        scene_setup();
+    scene_setup();
 }
 
 void App::update()
 {
     render_scene();
-    float value = 0;
+
     while (!finished)
     {
         SDL_Event event;
@@ -129,10 +130,8 @@ void App::update()
         ImGui_ImplSDL3_NewFrame();
         ImGui::NewFrame();
 
-        ImGui::Begin("Control");
-        ImGui::SliderFloat("Position", &value, 0.0f, 1.0f);
-        ImGui::End();
-
+        draw_ui();
+        
         ImGui::Render();
 
         SDL_SetRenderDrawColor(renderer, 0, 60, 60, SDL_ALPHA_OPAQUE);
@@ -150,7 +149,8 @@ void App::handle_event(SDL_Event event)
     while (SDL_PollEvent(&event))
     {
         ImGui_ImplSDL3_ProcessEvent(&event);
-        if (event.type == SDL_EVENT_QUIT) finished = true;
+        if (event.type == SDL_EVENT_QUIT)
+            finished = true;
         if (event.type == SDL_EVENT_KEY_DOWN)
         {
             if (event.key.key == SDLK_R)
@@ -161,8 +161,76 @@ void App::handle_event(SDL_Event event)
     }
 }
 
-void App::render_scene()
+void App::draw_ui()
 {
+    float pos[3] = {(float)cam.lookat.x(), (float)cam.lookat.y(), (float)cam.lookat.z()};
+
+    float orbit[3] = {
+        (float)cam.vertical_angle,
+        (float)cam.horizontal_angle,
+        (float)cam.orbit_radius};
+
+    float focus_distance = (float)cam.focus_dist;
+
+    ImGui::Begin("Control");
+
+    if (ImGui::SliderFloat3("Position", pos, -20.0, 20.0))
+    {
+        cam.lookat = vec3(pos[0], pos[1], pos[2]);
+    }
+    if (ImGui::IsItemActive())
+    {
+        render_scene(true);
+    }
+    else if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        render_scene(false);
+    }
+
+    if (ImGui::SliderFloat3("Orbit", orbit, -180.0, 360.0))
+    {
+        cam.vertical_angle = orbit[0];
+        cam.horizontal_angle = orbit[1];
+        cam.orbit_radius = orbit[2];
+    }
+    if (ImGui::IsItemActive())
+    {
+        render_scene(true);
+    }
+    else if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        render_scene(false);
+    }
+
+    if (ImGui::SliderFloat("Focus Distance", &focus_distance, 0.0, 100.0))
+    {
+        cam.focus_dist = focus_distance;
+    }
+    if (ImGui::IsItemActive())
+    {
+        render_scene(true);
+    }
+    else if (ImGui::IsItemDeactivatedAfterEdit())
+    {
+        render_scene(false);
+    }
+    
+    ImGui::End();
+}
+
+void App::render_scene(bool preview)
+{
+    if (preview)
+    {
+        cam.samples_per_pixel = 1;
+        cam.max_depth = 5;
+    }
+    else 
+    {
+        cam.samples_per_pixel = 50;
+        cam.max_depth = 10;
+    }
+
     void *pixels;
     int pitch = 0;
     if (SDL_LockTexture(texture, NULL, &pixels, &pitch))

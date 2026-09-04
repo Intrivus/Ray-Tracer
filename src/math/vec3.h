@@ -164,4 +164,14 @@ inline vec3 refract(const vec3& uv, const vec3& n, double etai_over_etat)
     return r_out_perp + r_out_parallel;
 }
 
+inline vec3 spherical_to_Cartesian(double phi, double theta)
+{
+    double cos_phi = std::cos(degrees_to_radians(phi));
+    double sin_phi = std::sin(degrees_to_radians(phi));
+    double cos_theta = std::cos(degrees_to_radians(theta));
+    double sin_theta = std::sin(degrees_to_radians(theta));
+
+    return vec3(cos_phi*cos_theta, sin_phi, cos_phi*sin_theta);
+}
+
 #endif

@@ -36,9 +36,10 @@ class App
     hittable_list world;
     camera cam;
     
+    void draw_ui();
     void handle_event(SDL_Event event);
     void scene_setup();
-    void render_scene();
+    void render_scene(bool preview = false);
 };
 
 #endif

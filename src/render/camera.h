@@ -25,8 +25,12 @@ class camera
         point3 lookat = point3(0,0,-1);
         vec3 vup = vec3(0,1,0);
 
+        double horizontal_angle = 0.0;
+        double vertical_angle = -180;
+
         double defocus_angle = 0;
         double focus_dist = 10;
+        double orbit_radius = 10;
 
         void render(const hittable& world)
         {
@@ -95,7 +99,7 @@ class camera
             }
         }
 
-        private: 
+    private: 
         int image_height;
         double pixel_sample_scale;
         point3 center;
@@ -110,9 +114,10 @@ class camera
         {
             image_height = int(image_width / aspect_ratio);
             image_height = (image_height < 1) ? 1 : image_height;
-
+            
             pixel_sample_scale = 1.0 / samples_per_pixel;
-
+            
+            lookfrom = lookat + orbit_radius * spherical_to_Cartesian(vertical_angle, horizontal_angle);
             center = lookfrom;
 
             // Determine viewport dimension.
