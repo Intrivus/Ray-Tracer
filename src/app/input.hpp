@@ -16,8 +16,7 @@ enum class Action
 {
     Reload,
     Pan,
-    Orbit,
-    Zoom
+    Orbit
 };
 
 class Input
@@ -38,7 +37,8 @@ class Input
     inline static unordered_map<Action, bool> released;
 
     static constexpr float ORBIT_SENS = 50; // What unit?
-    static constexpr float PAN_SENS = 25;
+    static constexpr float PAN_SENS = 0.1;
+    static constexpr float ZOOM_SENS = 1.5;
 
     static constexpr float SCROLL_RELEASED_MS = 250;
     inline static float last_scroll = 0;
@@ -46,6 +46,7 @@ class Input
     inline static bool scrolling = false;
     inline static bool scrolling_released = false;
     
+    static void update();
     static void check_all(SDL_Event* event);
     static void reset();
     

@@ -1,5 +1,4 @@
 #include "input.hpp"
-#include <iostream>
 
 void Input::check_all(SDL_Event* event)
 {
@@ -58,7 +57,11 @@ void Input::check_all(SDL_Event* event)
         scroll_delta = event->wheel.y;
         last_scroll = SDL_GetTicks();
     }
-    else if (scrolling && SDL_GetTicks() - last_scroll > SCROLL_RELEASED_MS)
+}
+
+void Input::update()
+{
+    if (scrolling && SDL_GetTicks() - last_scroll > SCROLL_RELEASED_MS)
     {
         scrolling = false;
         scrolling_released = true;

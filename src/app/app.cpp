@@ -145,6 +145,7 @@ void App::update()
 void App::handle_event(SDL_Event event)
 {
     Input::reset();
+    Input::update();
 
     // Event Handling
     while (SDL_PollEvent(&event))
@@ -163,7 +164,7 @@ void App::handle_event(SDL_Event event)
         float mouse_dy = ImGui::GetIO().MouseDelta.y / window_height;
         if (Input::held[Action::Pan])
         {
-            cam.lookat += (-mouse_dx * cam.u + mouse_dy * cam.v) * Input::PAN_SENS;
+            cam.lookat += (-mouse_dx * cam.u + mouse_dy * cam.v) * cam.orbit_radius * Input::PAN_SENS;
             render_scene(true);
         }
         else if (Input::released[Action::Pan])
@@ -179,9 +180,9 @@ void App::handle_event(SDL_Event event)
     }
     else if (Input::released[Action::Orbit]) render_scene(false);
 
-    if (Input::scrolling)
+    if (Input::scroll_delta != 0)
     {
-        double new_radius = cam.orbit_radius - Input::scroll_delta;
+        double new_radius = cam.orbit_radius - Input::scroll_delta * Input::ZOOM_SENS;
         cam.orbit_radius = cam.proximity.clamp(new_radius);
         render_scene(true);
     }
