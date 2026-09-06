@@ -32,6 +32,7 @@ IMGUI_BACKENDS := $(IMGUI_DIR)/backends/imgui_impl_sdl3.cpp \
 
 OBJS := $(BUILD_DIR)/src/main.o \
         $(BUILD_DIR)/src/app/app.o \
+        $(BUILD_DIR)/src/app/input.o \
         $(IMGUI_SRCS:%.cpp=$(BUILD_DIR)/%.o) \
         $(IMGUI_BACKENDS:%.cpp=$(BUILD_DIR)/%.o)
 

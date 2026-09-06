@@ -7,10 +7,12 @@
 #include "color.h"
 #include "vec3.h"
 #include "utils.h"
+#include "interval.h"
 
 #include <thread>
 #include <vector>
 #include <iostream>
+#include <cmath>
 
 class camera
 {
@@ -24,10 +26,12 @@ class camera
         point3 lookfrom = point3(0,0,0);
         point3 lookat = point3(0,0,-1);
         vec3 vup = vec3(0,1,0);
+        vec3 u, v, w;
 
         double horizontal_angle = 0.0;
-        double vertical_angle = -180;
+        double vertical_angle = 90;
 
+        inline static const interval proximity{1.0, 100.0};
         double defocus_angle = 0;
         double focus_dist = 10;
         double orbit_radius = 10;
@@ -106,7 +110,7 @@ class camera
         point3 pixel00_loc;
         vec3 pixel_delta_u;
         vec3 pixel_delta_v;
-        vec3 u, v, w;
+        // vec3 u, v, w;
         vec3 defocus_disk_u;
         vec3 defocus_disk_v;
 
@@ -116,7 +120,7 @@ class camera
             image_height = (image_height < 1) ? 1 : image_height;
             
             pixel_sample_scale = 1.0 / samples_per_pixel;
-            
+
             lookfrom = lookat + orbit_radius * spherical_to_Cartesian(vertical_angle, horizontal_angle);
             center = lookfrom;
 

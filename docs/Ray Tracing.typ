@@ -282,4 +282,42 @@ point3 defocus_disk_sample() const
 }
 ```
 
+= Beyond "One Weekend"
+
+"Ray Tracing in One Weekend" has shown graphic enthusiasts how the computer can produce realistic images through utter creativity and the application of rudimentary mathematical knowledge in a supposedly short amount of time. Yet, to me, the computer can go beyond a beautiful static render that resembles the nature of that paintings on canvases possess with its capability for immersive and real-time interaction. This is the thought that prompted my diversion from the book's path, and endorse the creative freedom that its authors have laid the foundation to build upon.
+
+
+== Refactor
+
+The book's original design uses `shared_ptr<hittable>` throughout, allowing multiple owners to reference the same object simultaneously via reference counting. This flexibility is unnecessary, for the scene's object list is the sole structure that ever holds these objects; nothing else in the program needs concurrent access to the same `hittable`. `unique_ptr` enforces this single-ownership relationship directly at the type level, removing the small overhead of reference counting and making the ownership model explicit. A `unique_ptr` in the list is the object's only reference that will exist for the span of the program.
+
+*Snippet: `hittable_list.h`*
+```cpp
+hittable_list(unique_ptr<hittable> object) { add(move(object)); }
+
+void add(unique_ptr<hittable> object)
+{
+    objects.push_back(move(object));
+}
+```
+
+Since copying is disallowed by design with this approach, objects can only be `move()` and transferred to a new owner.
+
+Next, the original single flat directory is separated into folders for specific header files in order to categorize the structure for both tidiness and future extension. From here, I created `app/` directory to hold the third-party SDK and libraries, distinct from any established logic so that only `app/` is aware of the additional display pipeline.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 #bibliography("refs.yaml", style: "ieee")

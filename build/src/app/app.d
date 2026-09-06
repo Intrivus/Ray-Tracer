@@ -1,8 +1,4 @@
-build/src/app/app.o: src/app/app.cpp src/math/utils.h src/app/app.hpp \
- src/render/camera.h src/scene/material.h src/scene/hittable.h \
- src/math/interval.h src/math/utils.h src/scene/material.h src/math/ray.h \
- src/math/vec3.h src/math/vec3.h src/math/color.h src/math/interval.h \
- src/scene/hittable.h src/scene/hittable_list.h src/scene/sphere.h \
+build/src/app/app.o: src/app/app.cpp src/app/app.hpp src/app/input.hpp \
  S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL.h \
  S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_stdinc.h \
  S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_platform_defines.h \
@@ -65,23 +61,13 @@ build/src/app/app.o: src/app/app.cpp src/math/utils.h src/app/app.hpp \
  S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_oldnames.h \
  third_party/imgui/imgui.h third_party/imgui/imconfig.h \
  third_party/imgui/backends/imgui_impl_sdl3.h \
- third_party/imgui/backends/imgui_impl_sdlrenderer3.h
-src/math/utils.h:
+ third_party/imgui/backends/imgui_impl_sdlrenderer3.h src/render/camera.h \
+ src/scene/material.h src/scene/hittable.h src/math/interval.h \
+ src/math/utils.h src/scene/material.h src/math/ray.h src/math/vec3.h \
+ src/math/vec3.h src/math/color.h src/math/interval.h src/math/utils.h \
+ src/scene/hittable.h src/scene/hittable_list.h src/scene/sphere.h
 src/app/app.hpp:
-src/render/camera.h:
-src/scene/material.h:
-src/scene/hittable.h:
-src/math/interval.h:
-src/math/utils.h:
-src/scene/material.h:
-src/math/ray.h:
-src/math/vec3.h:
-src/math/vec3.h:
-src/math/color.h:
-src/math/interval.h:
-src/scene/hittable.h:
-src/scene/hittable_list.h:
-src/scene/sphere.h:
+src/app/input.hpp:
 S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL.h:
 S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_stdinc.h:
 S:/Repertoire/_Global/SDK/SDL3/x86_64-w64-mingw32/include/SDL3/SDL_platform_defines.h:
@@ -146,3 +132,18 @@ third_party/imgui/imgui.h:
 third_party/imgui/imconfig.h:
 third_party/imgui/backends/imgui_impl_sdl3.h:
 third_party/imgui/backends/imgui_impl_sdlrenderer3.h:
+src/render/camera.h:
+src/scene/material.h:
+src/scene/hittable.h:
+src/math/interval.h:
+src/math/utils.h:
+src/scene/material.h:
+src/math/ray.h:
+src/math/vec3.h:
+src/math/vec3.h:
+src/math/color.h:
+src/math/interval.h:
+src/math/utils.h:
+src/scene/hittable.h:
+src/scene/hittable_list.h:
+src/scene/sphere.h:

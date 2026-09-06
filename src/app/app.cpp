@@ -1,4 +1,3 @@
-#include "utils.h"
 #include "app.hpp"
 
 App::App(double aspect_ratio, int window_width)
@@ -12,8 +11,8 @@ App::App(double aspect_ratio, int window_width)
 void App::scene_setup()
 {
     // World
-    auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
-    world.add(make_unique<sphere>(point3(0, -1000, 0), 1000, ground_material));
+    // auto ground_material = make_shared<lambertian>(color(0.5, 0.5, 0.5));
+    // world.add(make_unique<sphere>(point3(0, -1000, 0), 1000, ground_material));
 
     for (int a = -11; a < 11; a++)
     {
@@ -67,7 +66,6 @@ void App::scene_setup()
     // cam.max_depth = 10;
 
     cam.vfov = 20;
-    // cam.lookfrom = point3(13, 2, 3);
     cam.lookat = point3(0, 0, 0);
     cam.vup = vec3(0, 1, 0);
 
@@ -146,18 +144,50 @@ void App::update()
 
 void App::handle_event(SDL_Event event)
 {
+    Input::reset();
+
+    // Event Handling
     while (SDL_PollEvent(&event))
     {
         ImGui_ImplSDL3_ProcessEvent(&event);
-        if (event.type == SDL_EVENT_QUIT)
-            finished = true;
-        if (event.type == SDL_EVENT_KEY_DOWN)
+        if (event.type == SDL_EVENT_QUIT) finished = true;
+        Input::check_all(&event);
+    }
+
+    // Input Handling
+    if (Input::pressed[Action::Reload]) render_scene();
+
+    if (Input::held[Action::Orbit])
+    {
+        float mouse_dx = ImGui::GetIO().MouseDelta.x / window_width;
+        float mouse_dy = ImGui::GetIO().MouseDelta.y / window_height;
+        if (Input::held[Action::Pan])
         {
-            if (event.key.key == SDLK_R)
-            {
-                render_scene();
-            }
+            cam.lookat += (-mouse_dx * cam.u + mouse_dy * cam.v) * Input::PAN_SENS;
+            render_scene(true);
         }
+        else if (Input::released[Action::Pan])
+        {
+            render_scene(false);
+        }
+        else
+        {
+            cam.horizontal_angle += mouse_dx * Input::ORBIT_SENS;
+            cam.vertical_angle -= mouse_dy * Input::ORBIT_SENS;
+            render_scene(true);
+        }
+    }
+    else if (Input::released[Action::Orbit]) render_scene(false);
+
+    if (Input::scrolling)
+    {
+        double new_radius = cam.orbit_radius - Input::scroll_delta;
+        cam.orbit_radius = cam.proximity.clamp(new_radius);
+        render_scene(true);
+    }
+    else if (Input::scrolling_released)
+    {
+        render_scene(false);
     }
 }
 
