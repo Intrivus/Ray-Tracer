@@ -305,8 +305,9 @@ Since copying is disallowed by design with this approach, objects can only be `m
 
 Next, the original single flat directory is separated into folders for specific header files in order to categorize the structure for both tidiness and future extension. From here, I created `app/` directory to hold the third-party SDK and libraries, distinct from any established logic so that only `app/` is aware of the additional display pipeline.
 
+Furthermore, the book accumulated primary and common headers into `main.h`, a practice that contradicts my usual programming principle to always include what is used, for it is both a safe practice and intuitive practice. Also without the view for scalability, the book composes every implementations into the header file, which I depart my additional integrations from and, rather than overhaul the book's headers, temporary follow the One Definition Rule (ODR) by prefixing `inline` before free functions.
 
-
+== Window
 
 
 
