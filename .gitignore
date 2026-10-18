@@ -1,0 +1,8 @@
+/Makefile
+/include/
+/lib/
+/.vscode/
+/build/
+*.o
+*.d
+Makefile
