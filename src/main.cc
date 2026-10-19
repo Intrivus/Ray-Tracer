@@ -1,6 +1,20 @@
 #include "app.hpp"
 #include <SDL3/SDL_vulkan.h>
 
+struct Vertex {
+    float x,y,z;
+    float r,g,b;
+};
+
+Vertex vertices[4] = {
+    {-0.5f, -0.5f, 0.0f,  1, 0, 0},
+    { 0.5f, -0.5f, 0.0f,  0, 1, 0},
+    { 0.5f,  0.5f, 0.0f,  0, 0, 1},
+    {-0.5f,  0.5f, 0.0f,  1, 1, 0},
+};
+
+Uint16 indices[6] = { 0, 1, 2,  2, 3, 0 };
+
 // Create a new texture, meant to be used for depth testing
 static SDL_GPUTexture* create_depth_texture(SDL_GPUDevice* device, Uint32 w, Uint32 h) {
     SDL_GPUTextureCreateInfo info;
@@ -99,6 +113,32 @@ int main()
     pi.target_info.color_target_descriptions = &colorDesc;
     pi.target_info.num_color_targets = 1;
 
+    // Vertex buffer
+    SDL_GPUVertexBufferDescription vbDesc = {};
+    vbDesc.slot = 0;
+    vbDesc.pitch = sizeof(Vertex);
+    vbDesc.input_rate = SDL_GPU_VERTEXINPUTRATE_VERTEX;
+
+    SDL_GPUVertexAttribute attrs[2] = {};
+    
+    // Pos 0: position
+    attrs[0].location = 0;
+    attrs[0].buffer_slot = 0;
+    attrs[0].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    attrs[0].offset = offsetof(Vertex, x);
+
+    // Pos 1: color
+    attrs[1].location = 1;
+    attrs[1].buffer_slot = 0;
+    attrs[1].format = SDL_GPU_VERTEXELEMENTFORMAT_FLOAT3;
+    attrs[1].offset = offsetof(Vertex, r);
+
+    // Assign buffer to pipeline
+    pi.vertex_input_state.vertex_buffer_descriptions = &vbDesc;
+    pi.vertex_input_state.num_vertex_buffers = 1;
+    pi.vertex_input_state.vertex_attributes = attrs;
+    pi.vertex_input_state.num_vertex_attributes = 2;
+
     // Create pipeline
     SDL_GPUGraphicsPipeline* pipeline = SDL_CreateGPUGraphicsPipeline(device, &pi);
     if (!pipeline) {
@@ -108,6 +148,55 @@ int main()
     // Free unused shader object (alr registered, can be free)
     SDL_ReleaseGPUShader(device, vs);
     SDL_ReleaseGPUShader(device, fs);
+
+    // Create buffers, upload data to buffer
+    const Uint32 vSize = sizeof(vertices);
+    const Uint32 iSize = sizeof(indices);
+
+    // Vertex Buffer
+    SDL_GPUBufferCreateInfo vbInfo = {};
+    vbInfo.usage = SDL_GPU_BUFFERUSAGE_VERTEX;
+    vbInfo.size = vSize;
+    SDL_GPUBuffer* vertexBuffer = SDL_CreateGPUBuffer(device, &vbInfo);
+
+    // Indices buffer
+    SDL_GPUBufferCreateInfo ibInfo = {};
+    ibInfo.usage = SDL_GPU_BUFFERUSAGE_INDEX;
+    ibInfo.size = iSize;
+    SDL_GPUBuffer* indexBuffer = SDL_CreateGPUBuffer(device, &ibInfo);
+
+    // Buffer holding both buffer to transfer data
+    SDL_GPUTransferBufferCreateInfo tbInfo = {};
+    tbInfo.usage = SDL_GPU_TRANSFERBUFFERUSAGE_UPLOAD;
+    tbInfo.size = vSize + iSize;
+    SDL_GPUTransferBuffer* transfer = SDL_CreateGPUTransferBuffer(device, &tbInfo);
+
+    Uint8* mapped = (Uint8*)SDL_MapGPUTransferBuffer(device, transfer, false);
+    memcpy(mapped, vertices, vSize);
+    memcpy(mapped + vSize, indices, iSize);
+    SDL_UnmapGPUTransferBuffer(device, transfer);
+
+    // Copy to GPU
+    SDL_GPUCommandBuffer* uploadCmd = SDL_AcquireGPUCommandBuffer(device);
+    SDL_GPUCopyPass* copy = SDL_BeginGPUCopyPass(uploadCmd);
+
+    SDL_GPUTransferBufferLocation src = {};
+    src.transfer_buffer = transfer;
+    src.offset = 0;
+    SDL_GPUBufferRegion dst = {};
+    dst.buffer = vertexBuffer;
+    dst.offset = 0;
+    dst.size = vSize;
+    SDL_UploadToGPUBuffer(copy, &src, &dst, false);
+
+    src.offset = vSize;
+    dst.buffer = indexBuffer;
+    dst.size = iSize;
+    SDL_UploadToGPUBuffer(copy, &src, &dst, false);
+
+    SDL_EndGPUCopyPass(copy);
+    SDL_SubmitGPUCommandBuffer(uploadCmd);
+    SDL_ReleaseGPUTransferBuffer(device, transfer);
 
     // Depth testing initialize
     SDL_GPUTexture* depthTex = NULL;
@@ -162,7 +251,18 @@ int main()
             SDL_GPURenderPass* pass = SDL_BeginGPURenderPass(cmd, &color, 1, &depth);
 
             SDL_BindGPUGraphicsPipeline(pass, pipeline);
-            SDL_DrawGPUPrimitives(pass, 3, 1, 0, 0);
+
+            SDL_GPUBufferBinding vbBind = {};
+            vbBind.buffer = vertexBuffer;
+            vbBind.offset = 0;
+            SDL_BindGPUVertexBuffers(pass, 0, &vbBind, 1);
+
+            SDL_GPUBufferBinding ibBind = {};
+            ibBind.buffer = indexBuffer;
+            ibBind.offset = 0;
+            SDL_BindGPUIndexBuffer(pass, &ibBind, SDL_GPU_INDEXELEMENTSIZE_16BIT);
+
+            SDL_DrawGPUIndexedPrimitives(pass, 6, 1, 0, 0, 0);
 
             SDL_EndGPURenderPass(pass);
         }
@@ -172,6 +272,8 @@ int main()
 
     SDL_WaitForGPUIdle(device);
     if (depthTex) SDL_ReleaseGPUTexture(device, depthTex);
+    SDL_ReleaseGPUBuffer(device, vertexBuffer);
+    SDL_ReleaseGPUBuffer(device, indexBuffer);
     SDL_ReleaseGPUGraphicsPipeline(device, pipeline);
     SDL_ReleaseWindowFromGPUDevice(device, window);
     SDL_DestroyGPUDevice(device);
